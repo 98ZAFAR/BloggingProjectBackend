@@ -21,7 +21,7 @@ app.use(express.static(path.resolve('./public')));
 
 app.use('/api/user',userRoute);
 app.use('/api/post',ValidateUser,postRoute);
-app.use('/api', generalRoute);
+app.use('/', generalRoute);
 app.use('/api/post/comment', ValidateUser, commentRoute);
 
 app.get('/api/user/',ValidateUser,Authorize(['ADMIN', 'USER']), (req, res)=>{
