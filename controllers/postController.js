@@ -103,9 +103,11 @@ const handlePostLike = async (req, res) => {
 
     if (!post) return res.status(400), json({ message: "No post found!" });
 
-    const updatedLikes = post.likes;
+    let updatedLikes = post.likes;
     if (!updatedLikes.includes(req.user._id) || !updatedLikes)
       updatedLikes.push(req.user._id);
+    else
+      updatedLikes = updatedLikes.filter((userId)=>userId!=req.user._id);
 
     const details = await Post.updateOne(
       { _id: req.params.postId },

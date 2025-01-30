@@ -54,8 +54,10 @@ const handleCommentLike = async(req, res)=>{
     const comment = await Comment.findOne({_id:req.params.commentId});
 
     if(!comment) return res.status(400).json({message:"No comment found!"});
-    const updatedLikes = comment.likes;
+    let updatedLikes = comment.likes;
+
     if(!updatedLikes.includes(req.user._id)) updatedLikes.push(req.user._id);
+    else updatedLikes = updatedLikes.filter((userId)=>userId!=req.user._id);
 
     const details = await Comment.updateOne({_id:req.params.commentId}, {likes:updatedLikes});
 
