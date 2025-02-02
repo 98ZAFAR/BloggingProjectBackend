@@ -57,6 +57,7 @@ const handleLogin = async (req, res) => {
       name: user.name,
       email: email,
       role: user.role,
+      profileImgUrl:user.profileImgUrl,
     };
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
       expiresIn: "1d",
@@ -64,7 +65,7 @@ const handleLogin = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "User logged in successfully!", token: token });
+      .json({ message: "User logged in successfully!", token: token, user:payload });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server Error!" });

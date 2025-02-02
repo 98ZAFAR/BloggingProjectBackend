@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 
 const app = express()
 const port = process.env.PORT||3000
@@ -17,6 +18,14 @@ const Authorize = require('./middleware/authorization');
 mongoose.connect(process.env.MONGO_URL).then(()=>console.log('MongoDB connected....'));
 
 app.use(express.json());
+app.use(
+    cors({
+      origin: "http://localhost:5173",
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+  
 app.use(express.static(path.resolve('./public')));
 
 app.use('/api/user',userRoute);
