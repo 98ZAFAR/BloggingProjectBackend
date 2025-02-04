@@ -1,10 +1,15 @@
 const Post = require("../models/postModel");
 
 const handlePostCreate = async (req, res) => {
-  const { title, content, imgUrl, tags } = req.body;
+  let { title, content, tags } = req.body;
+  const imgUrl = req.file?req.file.path:"#";
+  tags = tags.split(' ');
 
-  if (!title || !content || !imgUrl || !tags) {
-    return res.status(400).json({ message: "All fields are mandatory!" });
+  if (!title || !content || !tags) {
+    return res.status(400).json({ error: "All fields are mandatory!" });
+  }
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -50,9 +55,10 @@ const handlePostFetch = async (req, res) => {
 
     return res.status(200).json({ post });
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching the post : ",error);
     return res.status(500).json({ message: "Server Error!" });
   }
+
 };
 
 const handlePostEdit = async (req, res) => {
@@ -101,7 +107,7 @@ const handlePostLike = async (req, res) => {
   try {
     const post = await Post.findOne({ _id: req.params.postId });
 
-    if (!post) return res.status(400), json({ message: "No post found!" });
+    if (!post) return res.status(400).json({ message: "No post found!" });
 
     let updatedLikes = post.likes;
     if (!updatedLikes.includes(req.user._id) || !updatedLikes)

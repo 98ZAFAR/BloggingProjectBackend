@@ -15,7 +15,7 @@ const ValidateUser = (req, res, next)=>{
         req.user = user;
         next();
     } catch (error) {
-        console.error(error);
+        console.log(error);
         return res.status(500).json({error});
     }
 }
