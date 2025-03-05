@@ -2,7 +2,7 @@ const { transporter } = require("../middleware/emailConfigMiddleware");
 const sendForgetPasswordURL = async (email, resetURL) => {
     try {
         const response = await transporter.sendMail({
-            from: '"Bloggit web support team" <i.sksingh113@gmail.com>',
+            from: '"Bloggit web support team"',
             to: email,
             subject: "Password Reset Request", 
             text: "Please click the link below to reset your password.", 
@@ -43,7 +43,7 @@ const sendForgetPasswordURL = async (email, resetURL) => {
 const sendWelcomeEmail = async (email, name) => {
     try {
         const response = await transporter.sendMail({
-            from: '"Bloggit web support team" <i.sksingh113@gmail.com>',
+            from: '"Bloggit web support team"',
             to: email,
             subject: "Password Reset!", 
             text: `Welcome, ${name}! Your password is reset successfuly.`, 
