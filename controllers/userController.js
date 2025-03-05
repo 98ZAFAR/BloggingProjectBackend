@@ -2,6 +2,10 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const crypto = require("crypto");
 
+const {
+  sendForgetPasswordURL,
+  sendWelcomeEmail,
+} = require("../middleware/emailSendMiddleware");
 const handleSignup = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -71,8 +75,57 @@ const handleLogin = async (req, res) => {
     return res.status(500).json({ message: "Server Error!" });
   }
 };
+const handleForgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required!" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+    const resetToken = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    await sendForgetPasswordURL(user.email,resetURL);
+    return res.status(200).json({ message: "Reset password link sent to your email!", data: resetURL });
+  } catch (error) {
+    console.error("Error in forget password:", error);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+const handleResetPassword = async (req, res) => {
+  try {
+    const { resetToken } = req.params;
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return res.status(400).json({ error: "New password is required!" });
+    }
+    const decoded = jwt.verify(resetToken, process.env.SECRET_KEY);
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+    const hashedPassword = crypto
+      .createHmac("sha256", process.env.SECRET_KEY)
+      .update(newPassword)
+      .digest("hex");
+    user.password = hashedPassword;
+    await user.save();
+    await sendWelcomeEmail(user.email, user.name);
+    return res.status(200).json({ message: "Password reset successfully!" });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
 
 module.exports = {
   handleLogin,
   handleSignup,
+  handleForgetPassword,
+  handleResetPassword
 };
